@@ -1,6 +1,7 @@
 function bestCharge(selectedItems) {
-  let ItemsList = getItemsList(selectedItems);
-  let summary = hasDiscount(ItemsList);
+  let itemsList = getItemsList(selectedItems);
+  let summary = hasDiscount(itemsList);
+  console.log(summary);
   //let result = printTickets(ItemsList, summary);
   //return result;
   return /*TODO*/;
@@ -19,7 +20,7 @@ function getItemsList(selectedItems) {
   return ItemsList;
 }
 
-/*function loadAllItems() {
+function loadAllItems() {
   return [
     {
       id: "ITEM0001",
@@ -42,18 +43,47 @@ function getItemsList(selectedItems) {
       price: 2.0
     }
   ];
-}*/
+}
 
-let inputs = ["ITEM0001 x 1", "ITEM0013 x 2", "ITEM0022 x 1"];
+function loadPromotions() {
+  return [
+    {
+      type: "满30减6元"
+    },
+    {
+      type: "指定菜品半价",
+      items: ["ITEM0001", "ITEM0022"]
+    }
+  ];
+}
+
+
+let inputs = ["ITEM0013 x 4"];
 bestCharge(inputs);
 
-function hasDiscount(ItemsList) {
+function hasDiscount(itemsList) {
   let summary = {};
-  let totalPrice = ItemsList.reduce((price, item) => {
+  let totalPrice = itemsList.reduce((price, item) => {
     return price + item.subTotalPrice;
   }, 0);
-  summary.totalPrice = totalPrice;
-
+  let discountHalfItem = [];
+  let halfPrice = 0;
+  let promotions = loadPromotions();
+  promotions[1].items.forEach(value => {
+    itemsList.forEach(item => {
+      if(item.id === value) {
+        halfPrice += item.price / 2;
+        discountHalfItem.push(item.name);
+      }
+    });
+  });
+  if (totalPrice < 30) {
+    summary.discount = halfPrice ? halfPrice : "";
+    summary.totalPrice = totalPrice - summary.discount;
+  } else {
+    summary.discount = Math.max(halfPrice, 6);
+    summary.totalPrice = totalPrice - summary.discount;
+  }
   return summary;
 }
 
