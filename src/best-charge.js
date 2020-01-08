@@ -1,6 +1,6 @@
 function bestCharge(selectedItems) {
   let ItemsList = getItemsList(selectedItems);
-  //let summary = hasDiscount(ItemsList);
+  let summary = hasDiscount(ItemsList);
   //let result = printTickets(ItemsList, summary);
   //return result;
   return /*TODO*/;
@@ -49,6 +49,11 @@ bestCharge(inputs);
 
 function hasDiscount(ItemsList) {
   let summary = {};
+  let totalPrice = ItemsList.reduce((price, item) => {
+    return price + item.subTotalPrice;
+  }, 0);
+  summary.totalPrice = totalPrice;
+
   return summary;
 }
 
