@@ -58,7 +58,7 @@ function loadPromotions() {
 }
 
 
-let inputs = ["ITEM0013 x 4"];
+let inputs = ["ITEM0013 x 4", "ITEM0022 x 1"];
 bestCharge(inputs);
 
 function hasDiscount(itemsList) {
@@ -80,9 +80,11 @@ function hasDiscount(itemsList) {
   if (totalPrice < 30) {
     summary.discount = halfPrice ? halfPrice : "";
     summary.totalPrice = totalPrice - summary.discount;
+    summary.type = halfPrice ? promotions[1].type : "";
   } else {
     summary.discount = Math.max(halfPrice, 6);
     summary.totalPrice = totalPrice - summary.discount;
+    summary.type = 6 > halfPrice ? promotions[0].type :promotions[1].type;
   }
   return summary;
 }
