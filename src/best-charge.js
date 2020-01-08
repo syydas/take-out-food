@@ -21,24 +21,23 @@ function getItemsList(selectedItems) {
 
 function hasDiscount(itemsList) {
   let summary = {};
-  let totalPrice = itemsList.reduce((price, item) => {
+  let totalPrice = getTotalPrice(itemsList);
+  let promotions = loadPromotions();
+  summary = doDiscount(itemsList, totalPrice, promotions);
+  return summary;
+}
+
+function getTotalPrice(itemsList) {
+  return itemsList.reduce((price, item) => {
     return price + item.subTotalPrice;
   }, 0);
-  let discountHalfItem = [];
-  let halfPrice = 0;
-  let promotions = loadPromotions();
-  promotions[1].items.forEach(value => {
-    itemsList.forEach(item => {
-      if (item.id === value) {
-        halfPrice += item.price / 2;
-        discountHalfItem.push(item.name);
-      }
-    });
-  });
+}
+function doDiscount(itemsList, totalPrice, promotions) {
+  let summary = {};
+  let [halfPrice, discountHalfItem] = discountHalf(itemsList, promotions);
   if (totalPrice < 30) {
     if (halfPrice) {
       summary.discount = halfPrice;
-      summary.totalPrice = totalPrice - halfPrice;
       summary.type = promotions[1].type;
       summary.discountItem = discountHalfItem;
     } else {
@@ -53,12 +52,38 @@ function hasDiscount(itemsList) {
   return summary;
 }
 
+function discountHalf(itemsList, promotions) {
+  let discountHalfItem = [];
+  let halfPrice = 0;
+  promotions[1].items.forEach(value => {
+    itemsList.forEach(item => {
+      if (item.id === value) {
+        halfPrice += item.price / 2;
+        discountHalfItem.push(item.name);
+      }
+    });
+  });
+  return [halfPrice, discountHalfItem];
+}
+
 function printTickets(itemsList, summary) {
   let result = "============= 订餐明细 =============\n";
-  itemsList.forEach(item => {
-    return (result += `${item.name} x ${item.count} = ${item.subTotalPrice}元\n`);
-  });
+  result = itemsDetail(itemsList, result);
   result += "-----------------------------------\n";
+  result = promotionsType(result, summary);
+  result += `总计：${summary.totalPrice}元\n`;
+  result += "===================================\n";
+  return result;
+}
+
+function itemsDetail(itemsList, result) {
+ itemsList.forEach(item => {
+     result += `${item.name} x ${item.count} = ${item.subTotalPrice}元\n`;
+  });
+  return result;
+}
+
+function promotionsType(result, summary) {
   switch (summary.type) {
     case "满30减6元":
       result += `使用优惠:\n${summary.type}，省${summary.discount}元\n`;
@@ -73,8 +98,5 @@ function printTickets(itemsList, summary) {
     default:
       break;
   }
-
-  result += `总计：${summary.totalPrice}元\n`;
-  result += "===================================\n";
   return result;
 }
